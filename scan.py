@@ -3,6 +3,10 @@ from dotenv import load_dotenv
 import os
 import time
 import sqlalchemy as db
+import pandas as pd
+from sqlalchemy import Table, Column, String, MetaData, insert
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 
 # Load environment variables for API-KEY
 load_dotenv()
@@ -36,10 +40,59 @@ def get_analysis_stats(url):
     analysis_stats = analysis_response.json()["data"]["attributes"]["stats"]
     return analysis_stats
 
+def get_Pwned(email):
+    url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{email}?truncateResponse=false"
+    headers = {
+        "HIBP-API-KEY": os.environ.get('HIBP_API_KEY')
+    }
+    analysis_breaches = requests.get(url, headers=headers)
+    breaches_stats = analysis_breaches.json()
+    return breaches_stats
+
+def data_base():
+    email = input("Enter email to check breaches: ")
+
+    engine = db.create_engine('sqlite:///data_base_name.db')
+    metadata = MetaData()
+
+    breaches_table = Table('breaches',metadata,
+                         Column('email',String),
+                         Column('breach', String),
+                         Column('date', String),
+                         Column('fixed', String),
+                         db.PrimaryKeyConstraint('email', 'breach')
+                         )
+    
+    metadata.create_all(engine)
+
+    breaches = get_Pwned(email)
+
+    with engine.connect() as connection:
+        for breach in breaches:
+            stmt = insert(breaches_table).values(
+                email=email,
+                breach=breach['Name'],
+                date=breach['BreachDate'],
+                fixed='true'
+            )
+
+            try:
+                connection.execute(stmt)
+            except IntegrityError:
+                print("Already in data base")
+                pass
+        connection.commit()
+
+        result = connection.execute(db.text("SELECT * FROM breaches")).fetchall()
+        for row in result:
+            print(row)
+
 def main():
     analysis_url = get_analysis_url()
-    time.sleep(30)
+    time.sleep(5)
     print(get_analysis_stats(analysis_url))
+    print("\n")
+    data_base()
 
 if __name__=="__main__":
-    main()    
+    main() 
