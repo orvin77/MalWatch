@@ -46,8 +46,11 @@ def get_Pwned(email):
         "HIBP-API-KEY": os.environ.get('HIBP_API_KEY')
     }
     analysis_breaches = requests.get(url, headers=headers)
-    breaches_stats = analysis_breaches.json()
-    return breaches_stats
+    if analysis_breaches.status_code == 200:
+        breaches_stats = analysis_breaches.json()
+        return breaches_stats
+    else:
+        return []
 
 def data_base():
     email = input("Enter email to check breaches: ")
@@ -66,6 +69,10 @@ def data_base():
     metadata.create_all(engine)
 
     breaches = get_Pwned(email)
+    
+    if len(breaches) == 0:
+        print("There Have been no breaches in that email")
+        return
 
     with engine.connect() as connection:
         for breach in breaches:
@@ -73,25 +80,34 @@ def data_base():
                 email=email,
                 breach=breach['Name'],
                 date=breach['BreachDate'],
-                fixed='true'
+                fixed='false'
             )
 
             try:
                 connection.execute(stmt)
             except IntegrityError:
-                print("Already in data base")
                 pass
         connection.commit()
 
-        result = connection.execute(db.text("SELECT * FROM breaches")).fetchall()
-        for row in result:
-            print(row)
+    with engine.connect() as connection:
+        result = connection.execute(db.text(
+        "SELECT breach, date FROM breaches WHERE email = :email AND fixed = 'false' ORDER BY date DESC"
+        ), {'email': email}).fetchall()
+
+        breach_date_list = [(row[0], row[1]) for row in result]
+        for breach_date in breach_date_list:
+            print(f"Breach: {breach_date[0]}\nDate: {breach_date[1]}\n")
+
+
+def update_data_vase():
+    pass
+
 
 def main():
-    analysis_url = get_analysis_url()
-    time.sleep(5)
-    print(get_analysis_stats(analysis_url))
-    print("\n")
+    # analysis_url = get_analysis_url()
+    # time.sleep(5)
+    # print(get_analysis_stats(analysis_url))
+    # print("\n")
     data_base()
 
 if __name__=="__main__":
