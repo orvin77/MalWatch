@@ -4,7 +4,7 @@ MalWatch is a command-line tool that helps users scan suspicious URLs for threat
 
 It combines powerful APIs like **VirusTotal**, **HaveIBeenPwned**, and **Google GenAI** to deliver a simple and accessible cybersecurity assistant — all from your terminal.
 
-## 📦 Requirements / Dependencies
+## Requirements / Dependencies
 
 Make sure you have the following installed:
 
@@ -12,7 +12,7 @@ Make sure you have the following installed:
 - [pip]
 - Virtual environment (optional but recommended)
 
-**Python dependencies
+## Python dependencies
 
 1. requests
 2. python-dotenv
@@ -21,7 +21,7 @@ Make sure you have the following installed:
 6. openai
 6. google
 
-** SETUP **
+## ** SETUP **
 1. clone the repository
 2. create a virtual environment for convinienve
 3. Be sure to install all the dependencies
