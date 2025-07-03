@@ -199,9 +199,11 @@ def main():
         if ans == '1':
             if counter>=1:
                 change_email = input("Would you like to check a different email?(y/n): ")
+                print("\n")
                 if change_email=='y' or change_email=='Y':
                     email = input("Enter new email to check: ")
-
+                    
+            print("\n")
             breached_list = data_base(email)
             for breach_date in breached_list:
                 print(f"Breach: {breach_date[0]}\nDate: {breach_date[1]}\n")
@@ -216,9 +218,6 @@ def main():
 
             for ind, breach in enumerate(breached_list):
                 print(f"{ind+1}. {breach[0]}")
-
-            print("Enter the numbers of the breaches fixed seperated by a space "
-            "or type 'all' if you fixed them all: ")
 
             fixed = input('\nEnter the numbers of the breaches fixed seperated by a space \n'
             'Type "all" if you fixed them all\n' \

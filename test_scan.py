@@ -1,5 +1,5 @@
 import unittest
-from scan import get_analysis_stats, get_Pwned
+from scan import get_analysis_stats, get_pwned
 
 class TestScan(unittest.TestCase):
 
@@ -17,5 +17,5 @@ class TestScan(unittest.TestCase):
 
     def test_get_Pwned(self):
     # Using this email to test: arianawoocay@gmail.com
-        status, breaches = get_Pwned("arianawoocay@gmail.com")
+        status, breaches = get_pwned("arianawoocay@gmail.com")
         assert status == 200
